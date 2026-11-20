@@ -21,16 +21,17 @@ public class ModKick implements ModInitializer {
     private static final String MOD_MENSAJE =
         "§cConnection Lost\n" +
         "\n" +
-        "§e     You are missing a required mod to join\n" +
+        "§e       You need Fabric Auth + the Biome Journey pack.\n" +
+        "§eDownload both .jar files from the website and install them in .minecraft/mods:\n" +
         "\n" +
-        "§a            How to install\n" +
+        "§a                 How to install\n" +
         "§a1. Install Fabric Loader + Fabric API (fabricmc.net)\n" +
         "§a   for Minecraft 1.21.11\n" +
-        "§a2. Download Simple Voice Chat from modrinth.com/mod/simple-voice-chat\n" +
-        "§a3. Place the .jar in .minecraft/mods along with Fabric API\n" +
-        "§a4. Restart the launcher, select the fabric profile\n" +
-        "§a   and join again\n" +
-        "§a       Required mod: Simple Voice Chat";
+        "§a2. Download fabric-auth.jar and the Mochi Mod Pack from https://www.mochicraft.net/\n" +
+        "§a3. Place BOTH jars in .minecraft/mods along with Fabric API — do not confuse fabric-auth with Fabric API.\n" +
+        "§a4. Restart the launcher, select the Fabric profile and join again.\n" +
+        "§a       Required key (mod id): fabric-auth\n" +
+        "§a            Mod: MochiCraft";
 
     private static class Congelado {
         final double x, y, z;
