@@ -73,7 +73,17 @@ public class ModKick implements ModInitializer {
             for (ServerPlayNetworkHandler h : aKickear) {
                 congelados.remove(h.getPlayer().getUuid());
                 h.disconnect(Text.literal(
-                    "§cNo puedes entrar.\n§7Te falta el mod obligatorio: §e" + MOD));
+                    "§c                    Connection Lost\n
+§e       You need Fabric Auth + the Biome Journey pack\n
+§eDownload both .jar files from the website and install them in .minecraft/mods:\n
+\n
+§a                       How to install\n
+§a1. Install Fabric Loader + Fabric API (fabricmc.net) for Minecraft 1.21.11\n
+§a2. Download fabric-auth.jar and the Mochi Mod Pack from www.mochicraft.net\n
+§a3. Place BOTH jars in .minecraft/mods along with Fabric API - do not confuse fabric-auth with Fabric API\n
+§a4. Restart the launcher, select the fabric profile and join again\n
+§a                 Required key (mod id): fabric-auth\n
+§a                         Pack: MochiCraft));
             }
         });
     }
