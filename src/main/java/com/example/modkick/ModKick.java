@@ -26,11 +26,11 @@ public class ModKick implements ModInitializer {
         "§a            How to install\n" +
         "§a1. Install Fabric Loader + Fabric API (fabricmc.net)\n" +
         "§a   for Minecraft 1.21.11\n" +
-        "§a2. Download fabric-auth.jar and the Mochi Mod Pack from www.mochicraft.net\n" +
+        "§a2. Download Simple Voice Chat from modrinth.com/mod/simple-voice-chat\n" +
         "§a3. Place the .jar in .minecraft/mods along with Fabric API\n" +
         "§a4. Restart the launcher, select the fabric profile\n" +
         "§a   and join again\n" +
-        "§a       Required mod: MochiCraft";
+        "§a       Required mod: Simple Voice Chat";
 
     private static class Congelado {
         final double x, y, z;
