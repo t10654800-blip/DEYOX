@@ -70,27 +70,35 @@ public class ModKick implements ModInitializer {
 
             for (ServerPlayNetworkHandler h : aKickear) {
                 congelados.remove(h.getPlayer().getUuid());
-                // 1. Enviar el enlace clickeable al chat justo antes del kick
-                h.getPlayer().sendMessage(crearMensajeChat(), false);
-                // 2. Desconectar con el mensaje de texto (el enlace aquí no es clickeable)
+                
+                // 1. Enviar al chat por si el clic en la pantalla de kick falla
+                h.getPlayer().sendMessage(crearEnlaceChat(), false);
+                
+                // 2. Expulsar con el mensaje completo (incluyendo el enlace clickeable)
                 h.disconnect(crearMensajeKick());
             }
         });
     }
 
-    private static Text crearMensajeChat() {
-        MutableText mensaje = Text.literal("§e[Enlace] §fHaz clic aquí para descargar el mod pack: ");
-        Text enlace = Text.literal("https://www.mochicraft.net/")
+    // Método auxiliar para crear el componente del enlace
+    private static Text obtenerEnlace() {
+        return Text.literal("https://www.mochicraft.net/")
                 .setStyle(Style.EMPTY
                         .withColor(Formatting.AQUA)
                         .withUnderline(true)
                         .withClickEvent(new ClickEvent.OpenUrl(URI.create("https://www.mochicraft.net/")))
                         .withHoverEvent(new HoverEvent.ShowText(Text.literal("§7¡Haz clic para abrir la página!")))
                 );
-        mensaje.append(enlace);
+    }
+
+    // Mensaje corto para el chat
+    private static Text crearEnlaceChat() {
+        MutableText mensaje = Text.literal("§e[Enlace] §fHaz clic aquí para descargar el mod pack: ");
+        mensaje.append(obtenerEnlace());
         return mensaje;
     }
 
+    // Mensaje completo para la pantalla de kick
     private static Text crearMensajeKick() {
         MutableText mensaje = Text.literal("");
         mensaje.append(Text.literal("\n§cConnection Lost\n\n"));
@@ -99,11 +107,16 @@ public class ModKick implements ModInitializer {
         mensaje.append(Text.literal("§aHow to install\n"));
         mensaje.append(Text.literal("§a1. Install Fabric Loader + Fabric API (fabricmc.net)\n"));
         mensaje.append(Text.literal("§a   for Minecraft 1.21.11\n"));
-        mensaje.append(Text.literal("§a2. Download fabric-auth.jar and the Mochi Mod Pack from the link in chat.\n"));
-        mensaje.append(Text.literal("§a3. Place BOTH jars in .minecraft/mods along with Fabric API — do not confuse fabric-auth with Fabric API.\n"));
+        
+        // Reconstruimos la línea 2 agregando el texto normal y luego el enlace
+        mensaje.append(Text.literal("§a2. Download fabric-auth.jar and the Mochi Mod Pack from "));
+        mensaje.append(obtenerEnlace()); // Aquí va el enlace clickeable
+        
+        mensaje.append(Text.literal("\n§a3. Place BOTH jars in .minecraft/mods along with Fabric API — do not confuse fabric-auth with Fabric API.\n"));
         mensaje.append(Text.literal("§a4. Restart the launcher, select the fabric profile and join again\n\n"));
         mensaje.append(Text.literal("§aRequired key (mod id): fabric-auth\n"));
         mensaje.append(Text.literal("§aMod: MochiCraft"));
+
         return mensaje;
     }
 }
