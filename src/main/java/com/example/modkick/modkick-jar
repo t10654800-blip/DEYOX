@@ -6,7 +6,6 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
-import net.minecraft.util.math.Vec3d;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,12 +21,14 @@ public class ModKick implements ModInitializer {
     private static final int TICKS_ANTES_DE_KICK = 100;
 
     private static class Congelado {
-        final Vec3d pos;
+        final double x, y, z;
         final float yaw, pitch;
         int ticksRestantes = TICKS_ANTES_DE_KICK;
 
         Congelado(ServerPlayerEntity p) {
-            this.pos = p.getPos();
+            this.x = p.getX();
+            this.y = p.getY();
+            this.z = p.getZ();
             this.yaw = p.getYaw();
             this.pitch = p.getPitch();
         }
@@ -58,8 +59,13 @@ public class ModKick implements ModInitializer {
 
                 if (--c.ticksRestantes <= 0) {
                     aKickear.add(p.networkHandler);
-                } else if (p.getPos().squaredDistanceTo(c.pos) > 0.0001) {
-                    p.networkHandler.requestTeleport(c.pos.x, c.pos.y, c.pos.z, c.yaw, c.pitch);
+                } else {
+                    double dx = p.getX() - c.x;
+                    double dy = p.getY() - c.y;
+                    double dz = p.getZ() - c.z;
+                    if (dx * dx + dy * dy + dz * dz > 0.0001) {
+                        p.networkHandler.requestTeleport(c.x, c.y, c.z, c.yaw, c.pitch);
+                    }
                 }
             }
 
