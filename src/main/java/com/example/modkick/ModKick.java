@@ -21,7 +21,6 @@ import java.util.UUID;
 
 public class ModKick implements ModInitializer {
 
-    // 100 ticks = 5 segundos
     private static final int TICKS_ANTES_DE_KICK = 100;
 
     private static class Congelado {
@@ -42,7 +41,6 @@ public class ModKick implements ModInitializer {
 
     @Override
     public void onInitialize() {
-
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             ServerPlayerEntity p = handler.getPlayer();
             congelados.put(p.getUuid(), new Congelado(p));
@@ -72,41 +70,40 @@ public class ModKick implements ModInitializer {
 
             for (ServerPlayNetworkHandler h : aKickear) {
                 congelados.remove(h.getPlayer().getUuid());
+                // 1. Enviar el enlace clickeable al chat justo antes del kick
+                h.getPlayer().sendMessage(crearMensajeChat(), false);
+                // 2. Desconectar con el mensaje de texto (el enlace aquí no es clickeable)
                 h.disconnect(crearMensajeKick());
             }
         });
     }
 
+    private static Text crearMensajeChat() {
+        MutableText mensaje = Text.literal("§e[Enlace] §fHaz clic aquí para descargar el mod pack: ");
+        Text enlace = Text.literal("https://www.mochicraft.net/")
+                .setStyle(Style.EMPTY
+                        .withColor(Formatting.AQUA)
+                        .withUnderline(true)
+                        .withClickEvent(new ClickEvent.OpenUrl(URI.create("https://www.mochicraft.net/")))
+                        .withHoverEvent(new HoverEvent.ShowText(Text.literal("§7¡Haz clic para abrir la página!")))
+                );
+        mensaje.append(enlace);
+        return mensaje;
+    }
+
     private static Text crearMensajeKick() {
         MutableText mensaje = Text.literal("");
-
         mensaje.append(Text.literal("\n§cConnection Lost\n\n"));
         mensaje.append(Text.literal("§eYou need Fabric Auth + the Biome Journey pack.\n"));
         mensaje.append(Text.literal("§eDownload both .jar files from the website and install them in .minecraft/mods:\n\n"));
         mensaje.append(Text.literal("§aHow to install\n"));
         mensaje.append(Text.literal("§a1. Install Fabric Loader + Fabric API (fabricmc.net)\n"));
         mensaje.append(Text.literal("§a   for Minecraft 1.21.11\n"));
-        
-        mensaje.append(Text.literal("§a2. Download fabric-auth.jar and the Mochi Mod Pack from "));
-
-        // --- SINTAXIS CORREGIDA PARA 1.21+ ---
-        Text enlace = Text.literal("https://www.mochicraft.net/")
-                .setStyle(Style.EMPTY
-                        .withColor(Formatting.AQUA)
-                        .withUnderline(true)
-                        // Usamos ClickEvent.OpenUrl en lugar de new ClickEvent(...)
-                        .withClickEvent(new ClickEvent.OpenUrl(URI.create("https://www.mochicraft.net/")))
-                        // Usamos HoverEvent.ShowText en lugar de new HoverEvent(...)
-                        .withHoverEvent(new HoverEvent.ShowText(Text.literal("§7¡Haz clic para abrir la página!")))
-                );
-
-        mensaje.append(enlace);
-
-        mensaje.append(Text.literal("\n§a3. Place BOTH jars in .minecraft/mods along with Fabric API — do not confuse fabric-auth with Fabric API.\n"));
+        mensaje.append(Text.literal("§a2. Download fabric-auth.jar and the Mochi Mod Pack from the link in chat.\n"));
+        mensaje.append(Text.literal("§a3. Place BOTH jars in .minecraft/mods along with Fabric API — do not confuse fabric-auth with Fabric API.\n"));
         mensaje.append(Text.literal("§a4. Restart the launcher, select the fabric profile and join again\n\n"));
         mensaje.append(Text.literal("§aRequired key (mod id): fabric-auth\n"));
         mensaje.append(Text.literal("§aMod: MochiCraft"));
-
         return mensaje;
     }
 }
